@@ -5,7 +5,7 @@ resources:
 - repo: self
 
 variables:
-  dockerRegistryServiceConnection: 'fb88f14a-085c-424f-a3cb-2f754be23e85'
+  dockerRegistryServiceConnection: '5afc114b-34a3-49c3-a8f9-f2902b5dc009'
   imageRepository: 'kjazurepipelinedemo'
   containerRegistry: 'vipulcr.azurecr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
