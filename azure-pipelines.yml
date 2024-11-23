@@ -6,7 +6,7 @@ resources:
 
 variables:
   dockerRegistryServiceConnection: 'fb88f14a-085c-424f-a3cb-2f754be23e85'
-  imageRepository: 'kjazurepipelinedemo'
+  imageRepository: 'vipulazurepipelinedemo'
   containerRegistry: 'vipulcr.azurecr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
   tag: '$(Build.BuildId)'
