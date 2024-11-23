@@ -1,0 +1,51 @@
+trigger:
+- main
+
+resources:
+- repo: self
+
+variables:
+  dockerRegistryServiceConnection: 'fb88f14a-085c-424f-a3cb-2f754be23e85'
+  imageRepository: 'kjazurepipelinedemo'
+  containerRegistry: 'vipulcr.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+  tag: '$(Build.BuildId)'
+  vmImageName: 'windows-latest'
+  webAppName: 'vipul-webapp'
+  resourceGroupName: 'College_2024'
+
+stages:
+- stage: Build
+  displayName: Build and push stage
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      name: 'Default'
+    steps:
+    - task: PowerShell@2
+      displayName: 'Run Docker commands with elevated privileges'
+      inputs:
+        targetType: 'inline'
+        script: |
+          $dockerPath = "C:\Program Files\Docker\Docker\resources\bin\docker.exe"
+          $scriptBlock = {
+            param($dockerPath)
+            & $dockerPath version
+            & $dockerPath info
+            & $dockerPath build -f "$(Build.SourcesDirectory)/Dockerfile" -t "$(containerRegistry)/$(imageRepository):$(tag)" "$(Build.SourcesDirectory)"
+            & $dockerPath push "$(containerRegistry)/$(imageRepository):$(tag)"
+          }
+          
+          $encodedCommand = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($scriptBlock))
+          
+          Start-Process powershell.exe -Verb RunAs -ArgumentList "-NoProfile", "-EncodedCommand", $encodedCommand -Wait
+
+    - task: AzureWebAppContainer@1
+      displayName: 'Azure Web App on Container Deploy'
+      inputs:
+        azureSubscription: 'vipul'
+        appName: $(webAppName)
+        resourceGroupName: $(resourceGroupName)
+        imageName: '$(containerRegistry)/$(imageRepository):$(tag)'
+        containerCommand: 'dotnet YourAppName.dll'
